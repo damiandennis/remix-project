@@ -5,6 +5,12 @@ import * as packageJson from '../../../../../package.json'
 import {RemixUiSettings} from '@remix-ui/settings' //eslint-disable-line
 import Registry from '../state/registry'
 import {PluginViewWrapper} from '@remix-ui/helper'
+declare global {
+  interface Window {
+    _paq: any
+  }
+}
+const _paq = (window._paq = window._paq || [])
 
 const profile = {
   name: 'settings',
@@ -63,6 +69,7 @@ module.exports = class SettingsTab extends ViewPlugin {
   updateComponent(state: any) {
     return (
       <RemixUiSettings
+        plugin={this}
         config={state.config}
         editor={state.editor}
         _deps={state._deps}
@@ -84,6 +91,15 @@ module.exports = class SettingsTab extends ViewPlugin {
   updateMatomoAnalyticsChoice(isChecked) {
     this.config.set('settings/matomo-analytics', isChecked)
     this.useMatomoAnalytics = isChecked
+    if (!isChecked) {
+      _paq.push(['optUserOut'])
+      // revoke tracking consent
+      _paq.push(['forgetConsentGiven']);
+    } else {
+      _paq.push(['forgetUserOptOut'])
+      // user has given consent to process their data
+      _paq.push(['setConsentGiven']);
+    }
     this.dispatch({
       ...this
     })

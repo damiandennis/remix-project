@@ -28,11 +28,16 @@ export function RecorderUI(props: RecorderProps) {
     setToggleExpander(!toggleExpander)
   }
 
+  const startWalkthrough = async () => {
+    setToggleExpander(true)
+    await props.plugin.call('walkthrough', 'startRecorderW')
+  }
+
   return (
-    <div className="udapp_cardContainer py-1 list-group-item border-top border-bottom">
-      <div className="udapp_recorderSection d-flex justify-content-between" onClick={toggleClass}>
+    <div className="udapp_cardContainer py-1 list-group-item border-top border-bottom" id="udappRecorderCard">
+      <div className="udapp_recorderSection d-flex justify-content-between">
         <div className="d-flex justify-content-center align-items-center">
-          <label className="mt-1 udapp_recorderSectionLabel">
+          <label className="text-nowrap mt-1 udapp_recorderSectionLabel" onClick={toggleClass}>
             <FormattedMessage id="udapp.transactionsRecorded" />
           </label>
           <CustomTooltip
@@ -41,31 +46,35 @@ export function RecorderUI(props: RecorderProps) {
             tooltipId="recordedTransactionsCounttooltip"
             tooltipText={<FormattedMessage id="udapp.transactionsCountTooltip" />}
           >
-            <div className="ml-2 badge badge-pill badge-primary text-center" data-title="The number of recorded transactions">
+            <div className="pl-3 badge badge-pill badge-primary text-center" style={{cursor:"default"}} data-title="The number of recorded transactions">
               {props.count}
             </div>
           </CustomTooltip>
           <CustomTooltip
             placement={'right'}
-            tooltipClasses="text-wrap"
-            tooltipId="info-recorder"
-            tooltipText={
-              <span>
-                <FormattedMessage id="udapp.infoRecorderTooltip" values={{br: <br />}} />
-              </span>
-            }
+            tooltipClasses="text-nowrap"
+            tooltipId="recordedTransactionsWalkthroughtooltip"
+            tooltipText={<FormattedMessage id="udapp.transactionsWalkthroughTooltip" />}
           >
-            <i style={{fontSize: 'medium'}} className={'ml-2 fal fa-info-circle align-self-center'} aria-hidden="true"></i>
+            <i
+              style={{fontSize: 'medium'}}
+              className={'ml-2 fal fa-info-circle align-self-center'}
+              aria-hidden="true"
+              onClick={() => startWalkthrough()}
+              data-id="recorderStartWalkthrough"
+            >
+            </i>
           </CustomTooltip>
         </div>
+        <div className="w-100" onClick={toggleClass}></div>
         <div className="p-3">
           <span data-id="udappRecorderTitleExpander" onClick={toggleClass}>
             <i className={!toggleExpander ? 'fas fa-angle-right' : 'fas fa-angle-down'} aria-hidden="true"></i>
           </span>
         </div>
       </div>
-      <div className={`pb-2 flex-column ${toggleExpander ? 'd-flex' : 'd-none'}`}>
-        <div className="mb-1 mt-1 custom-control custom-checkbox mb-1">
+      { toggleExpander && <div className={`pb-2 flex-column d-flex`} data-id='remixRecorderExpanded'>
+        <div className="mb-1 mt-1 custom-control custom-checkbox mb-1" id='udappRecorderUseLatest'>
           <input ref={inputLive} type="checkbox" id="livemode-recorder" className="custom-control-input custom-select" name="input-livemode" />
           <CustomTooltip
             placement={'right'}
@@ -95,32 +104,30 @@ export function RecorderUI(props: RecorderProps) {
                   : intl.formatMessage({id: 'udapp.transactionSaveTooltip3'}, {count: props.count})
             }
           >
-            <span>
-              <button
-                className="btn btn-sm btn-info savetransaction udapp_recorder"
-                disabled={props.count === 0 ? true : false}
-                onClick={triggerRecordButton}
-                style={{pointerEvents: props.count === 0 ? 'none' : 'auto'}}
-              >
-                <FormattedMessage id="udapp.save" />
-              </button>
-            </span>
+            <button
+              className="btn btn-sm btn-secondary savetransaction udapp_recorder"
+              disabled={props.count === 0 ? true : false}
+              onClick={triggerRecordButton}
+              style={{pointerEvents: props.count === 0 ? 'none' : 'auto'}}
+              id="udappRecorderSave"
+            >
+              <FormattedMessage id="udapp.save" />
+            </button>
           </CustomTooltip>
           <CustomTooltip placement={'right'} tooltipClasses="text-nowrap" tooltipId="tooltip-run-recorder" tooltipText={<FormattedMessage id="udapp.runRecorderTooltip" />}>
-            <span>
-              <button
-                className="btn btn-sm btn-info runtransaction udapp_runTxs"
-                data-id="runtransaction"
-                disabled={enableRunButton}
-                onClick={handleClickRunButton}
-                style={{pointerEvents: enableRunButton ? 'none' : 'auto'}}
-              >
-                <FormattedMessage id="udapp.run" />
-              </button>
-            </span>
+            <button
+              className={enableRunButton ? "btn btn-sm btn-secondary runtransaction udapp_runTxs" : "btn btn-sm btn-secondary runtransaction udapp_runTxs disabled"}
+              data-id="runtransaction"
+              disabled={enableRunButton}
+              onClick={handleClickRunButton}
+              style={{pointerEvents: enableRunButton ? 'none' : 'auto'}}
+              id="udappRecorderRun"
+            >
+              <FormattedMessage id="udapp.run" />
+            </button>
           </CustomTooltip>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

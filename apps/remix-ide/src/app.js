@@ -56,6 +56,7 @@ const remixLib = require('@remix-project/remix-lib')
 
 import {QueryParams} from '@remix-project/remix-lib'
 import {SearchPlugin} from './app/tabs/search'
+import { CopilotSuggestion } from './app/plugins/copilot/suggestion-service/copilot-suggestion'
 
 const Storage = remixLib.Storage
 const RemixDProvider = require('./app/files/remixDProvider')
@@ -129,8 +130,12 @@ class AppComponent {
       'remix.ethereum.org': 23,
       '6fd22d6fe5549ad4c4d8fd3ca0b7816b.mod': 35 // remix desktop
     }
-    this.showMatamo = matomoDomains[window.location.hostname] && !Registry.getInstance().get('config').api.exists('settings/matomo-analytics')
-    this.walkthroughService = new WalkthroughService(appManager, this.showMatamo)
+    
+    this.matomoConfAlreadySet = Registry.getInstance().get('config').api.exists('settings/matomo-analytics')
+    this.matomoCurrentSetting = Registry.getInstance().get('config').api.get('settings/matomo-analytics')
+    this.showMatamo = matomoDomains[window.location.hostname] && !this.matomoConfAlreadySet
+    
+    this.walkthroughService = new WalkthroughService(appManager)
 
     const hosts = ['127.0.0.1:8080', '192.168.0.101:8080', 'localhost:8080']
     // workaround for Electron support
@@ -186,8 +191,9 @@ class AppComponent {
     // ----------------- ContractFlattener ----------------------------
     const contractFlattener = new ContractFlattener()
 
-    // ----------------- Open AI --------------------------------------
+    // ----------------- AI --------------------------------------
     const openaigpt = new OpenAIGpt()
+    const copilotSuggestion = new CopilotSuggestion()
 
     // ----------------- import content service ------------------------
     const contentImport = new CompilerImports()
@@ -310,7 +316,8 @@ class AppComponent {
       compilationDetails,
       contractFlattener,
       solidityScript,
-      openaigpt
+      openaigpt,
+      copilotSuggestion
     ])
 
     // LAYOUT & SYSTEM VIEWS

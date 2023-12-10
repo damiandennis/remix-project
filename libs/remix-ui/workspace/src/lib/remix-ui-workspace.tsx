@@ -24,6 +24,7 @@ export function Workspace() {
   const [selectedWorkspace, setSelectedWorkspace] = useState<{
     name: string
     isGitRepo: boolean
+    hasGitSubmodules?: boolean
     branches?: {remote: any; name: string}[]
     currentBranch?: string
   }>(null)
@@ -68,7 +69,8 @@ export function Workspace() {
     mouseOverElement: null,
     showContextMenu: false,
     reservedKeywords: [ROOT_PATH, 'gist-'],
-    copyElement: []
+    copyElement: [],
+    dragStatus: false
   })
 
   useEffect(() => {
@@ -138,7 +140,6 @@ export function Workspace() {
 
   useEffect(() => {
     const workspace = global.fs.browser.workspaces.find((workspace) => workspace.name === currentWorkspace)
-
     setSelectedWorkspace(workspace)
   }, [currentWorkspace])
 
@@ -612,6 +613,15 @@ export function Workspace() {
     })
   }
 
+  const dragStatus = (status: boolean) => {
+    setState((prevState) => {
+      return {
+        ...prevState,
+        dragStatus: status
+      }
+    })
+  }
+
   const handleNewFileInput = async (parentFolder?: string) => {
     if (!parentFolder) parentFolder = getFocusedFolder()
     const expandPath = [...new Set([...global.fs.browser.expandPath, parentFolder])]
@@ -637,6 +647,14 @@ export function Workspace() {
 
   const toggleBranches = (isOpen: boolean) => {
     setShowBranches(isOpen)
+  }
+
+  const updateSubModules = async () => {
+    try {
+      await global.dispatchUpdateGitSubmodules()
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const handleBranchFilterChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -732,9 +750,22 @@ export function Workspace() {
             <option style={{fontSize: 'small'}} value="semaphore">
               {intl.formatMessage({id: 'filePanel.semaphore'})}
             </option>
+            <option style={{fontSize: 'small'}} value="hashchecker">
+              {intl.formatMessage({id: 'filePanel.hashchecker'})}
+            </option>
+            <option style={{fontSize: 'small'}} value="rln">
+              {intl.formatMessage({id: 'filePanel.rln'})}
+            </option>
+          </optgroup>
+          <optgroup style={{fontSize: 'medium'}} label="Uniswap">
+            <option style={{fontSize: 'small'}} value="uniswapV4Periphery">
+              {intl.formatMessage({id: 'filePanel.uniswapV4Periphery'})}
+            </option>
+            <option style={{fontSize: 'small'}} value="breakthroughLabsUniswapv4Hooks">
+              {intl.formatMessage({id: 'filePanel.breakthroughLabsUniswapv4Hooks'})}
+            </option>           
           </optgroup>
         </select>
-
         <div id="ozcustomization" data-id="ozCustomization" ref={displayOzCustomRef} style={{display: 'none'}} className="mb-2">
           <label className="form-check-label d-block mb-2" style={{fontWeight: 'bolder'}}>
             <FormattedMessage id="filePanel.customizeTemplate" />
@@ -1041,6 +1072,7 @@ export function Workspace() {
                     editModeOn={editModeOn}
                     handleNewFileInput={handleNewFileInput}
                     handleNewFolderInput={handleNewFolderInput}
+                    dragStatus={dragStatus}
                   />
                 </div>
               )}
@@ -1099,6 +1131,7 @@ export function Workspace() {
                     editModeOn={editModeOn}
                     handleNewFileInput={handleNewFileInput}
                     handleNewFolderInput={handleNewFolderInput}
+                    dragStatus={dragStatus}
                   />
                 </div>
               )}
@@ -1110,6 +1143,12 @@ export function Workspace() {
         <div className={`bg-light border-top ${selectedWorkspace.isGitRepo && currentBranch ? 'd-block' : 'd-none'}`} data-id="workspaceGitPanel">
           <div className="d-flex justify-space-between p-1">
             <div className="mr-auto text-uppercase text-dark pt-2 pl-2">GIT</div>
+            {selectedWorkspace.hasGitSubmodules? 
+              <div className="pt-1 mr-1">
+                {global.fs.browser.isRequestingCloning ? <div style={{ height: 30 }} className='btn btn-sm border text-muted small'><i className="fad fa-spinner fa-spin"></i> updating submodules</div>  :
+                  <div style={{ height: 30 }} onClick={updateSubModules} data-id='updatesubmodules' className='btn btn-sm border text-muted small'>update submodules</div>}
+              </div>  
+              : null}
             <div className="pt-1 mr-1" data-id="workspaceGitBranchesDropdown">
               <Dropdown style={{height: 30, minWidth: 80}} onToggle={toggleBranches} show={showBranches} drop={'up'}>
                 <Dropdown.Toggle

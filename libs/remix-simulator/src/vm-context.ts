@@ -71,7 +71,7 @@ class StateManagerCommonStorageDump extends DefaultStateManager {
           const stream = trie.createReadStream()
 
           stream.on('data', (val) => {
-            const value = decode(val.value)
+            const value: any = decode(val.value)
             storage['0x' + val.key.toString('hex')] = {
               key: this.keyHashes[val.key.toString('hex')],
               value: '0x' + value.toString('hex')
@@ -230,10 +230,11 @@ class CustomEthersStateManager extends StateManagerCommonStorageDump {
       [],
       this.blockTag,
     ])
+    const codeHash = accountData.codeHash === '0x0000000000000000000000000000000000000000000000000000000000000000' ? '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470' : accountData.codeHash
     const account = Account.fromAccountData({
       balance: BigInt(accountData.balance),
       nonce: BigInt(accountData.nonce),
-      codeHash: toBuffer(accountData.codeHash)
+      codeHash: toBuffer(codeHash)
       // storageRoot: toBuffer([]), // we have to remove this in order to force the creation of the Trie in the local state.
     })
     return account
@@ -313,6 +314,7 @@ export class VMContext {
           provider: this.nodeUrl,
           blockTag: '0x' + block.toString(16)
         })
+        this.blockNumber = block
       } else {
         stateManager = new CustomEthersStateManager({
           provider: this.nodeUrl,

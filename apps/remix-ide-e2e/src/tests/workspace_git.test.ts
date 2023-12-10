@@ -255,5 +255,128 @@ module.exports = {
 
   // GIT BRANCHES E2E END
 
-  tearDown: sauce
+  // GIT SUBMODULES E2E START
+
+  'Should clone a repository with submodules #group4': function (browser: NightwatchBrowser) {
+    browser
+      .clickLaunchIcon('filePanel')
+      .waitForElementVisible('[data-id="workspaceMenuDropdown"]')
+      .click('[data-id="workspaceMenuDropdown"]')
+      .waitForElementVisible('[data-id="workspaceclone"]')
+      .click('[data-id="workspaceclone"]')
+      .waitForElementVisible('[data-id="fileSystemModalDialogModalBody-react"]')
+      .click('[data-id="fileSystemModalDialogModalBody-react"]')
+      .waitForElementVisible('[data-id="modalDialogCustomPromptTextClone"]')
+      .setValue('[data-id="modalDialogCustomPromptTextClone"]', 'https://github.com/bunsenstraat/test-branch-submodule')
+      .click('[data-id="fileSystem-modal-footer-ok-react"]')
+      .waitForElementPresent('.fa-spinner')
+      .waitForElementVisible({
+        selector: '*[data-id="treeViewLitreeViewItem.git"]',
+        timeout: 60000
+      })
+      .waitForElementContainsText('[data-id="workspacesSelect"]', 'test-branch-submodule')
+      .waitForElementVisible('[data-id="updatesubmodules"]')
+      .click('[data-id="updatesubmodules"]')
+      .waitForElementPresent('.fa-spinner')
+      .waitForElementVisible({
+        selector: '*[data-id="treeViewLitreeViewItem.git"]',
+        timeout: 60000
+      })
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemplugins"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemwebsite"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive"]')
+      .pause(2000)
+      .click('[data-id="treeViewDivtreeViewItemwebsite"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemwebsite/index.html"]')
+      .click('[data-id="treeViewDivtreeViewItemplugins"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemplugins/README.md"]')
+      .click('[data-id="treeViewDivtreeViewItemrecursive"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/README.md"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/plugins"]')
+      .click('[data-id="treeViewDivtreeViewItemrecursive/plugins"]')
+      .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/plugins/build"]')
+  },
+  'When switching branches the submodules should dissappear #group4': function (browser: NightwatchBrowser) {
+    browser
+    .waitForElementVisible('[data-id="workspaceGitBranchesDropdown"]')
+    .click('[data-id="workspaceGitBranchesDropdown"]')
+    .waitForElementVisible('[data-id="custom-dropdown-menu"]')
+    .waitForElementContainsText('[data-id="custom-dropdown-items"]', 'origin/second')
+    .waitForElementPresent('[data-id="workspaceGit-origin/second"]')
+    .click('[data-id="workspaceGit-origin/second"]')
+    .waitForElementNotPresent('[data-id="treeViewDivtreeViewItemplugins"]')
+    .waitForElementNotPresent('[data-id="treeViewDivtreeViewItemwebsite"]')
+  },
+  'When switching to main update the modules #group4': function (browser: NightwatchBrowser) {
+    browser
+    .waitForElementVisible('[data-id="workspaceGitBranchesDropdown"]')
+    .click('[data-id="workspaceGitBranchesDropdown"]')
+    .waitForElementVisible('[data-id="custom-dropdown-menu"]')
+    .waitForElementContainsText('[data-id="custom-dropdown-items"]', 'origin/main')
+    .waitForElementPresent('[data-id="workspaceGit-origin/main"]')
+    .click('[data-id="workspaceGit-origin/main"]')
+    .waitForElementVisible('[data-id="updatesubmodules"]')
+    .click('[data-id="updatesubmodules"]')
+    .waitForElementPresent('.fa-spinner')
+    .waitForElementVisible({
+      selector: '*[data-id="treeViewLitreeViewItem.git"]',
+      timeout: 60000
+    })
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemplugins"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemwebsite"]')
+    .pause(2000)
+    .click('[data-id="treeViewDivtreeViewItemwebsite"]')
+    .click('[data-id="treeViewDivtreeViewItemwebsite"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemwebsite/index.html"]')
+    .click('[data-id="treeViewDivtreeViewItemplugins"]')
+    .click('[data-id="treeViewDivtreeViewItemplugins"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemplugins/README.md"]')
+    .click('[data-id="treeViewDivtreeViewItemrecursive"]')
+    .click('[data-id="treeViewDivtreeViewItemrecursive"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/README.md"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/plugins"]')
+    .click('[data-id="treeViewDivtreeViewItemrecursive/plugins"]')
+    .waitForElementVisible('[data-id="treeViewDivtreeViewItemrecursive/plugins/build"]')
+  },
+
+   // GIT SUBMODULES E2E ENDS
+
+   // GIT WORKSPACE E2E STARTS
+
+   'Should create a git workspace (uniswapV4Periphery) #group4': function (browser: NightwatchBrowser) {
+    browser
+      .click('*[data-id="workspacesMenuDropdown"]')
+      .click('*[data-id="workspacecreate"]')
+      .waitForElementVisible('*[data-id="modalDialogCustomPromptTextCreate"]')
+      .waitForElementVisible('[data-id="fileSystemModalDialogModalFooter-react"] > button')
+      .click('select[id="wstemplate"]')
+      .click('select[id="wstemplate"] option[value=uniswapV4Periphery]')
+      .waitForElementPresent('[data-id="fileSystemModalDialogModalFooter-react"] .modal-ok')
+      .execute(function () { (document.querySelector('[data-id="fileSystemModalDialogModalFooter-react"] .modal-ok') as HTMLElement).click() })
+      .pause(100)
+      .waitForElementVisible('*[data-id="treeViewLitreeViewItemcontracts"]')
+      .openFile('contracts')
+      .openFile('contracts/hooks')
+      .openFile('contracts/hooks/examples')
+      .openFile('contracts/hooks/examples/FullRange.sol')
+      .pause(1000)
+      .getEditorValue((content) => {
+        browser.assert.ok(content.indexOf(`contract FullRange is BaseHook`) !== -1,
+          'Incorrect content')
+      })
+  }, 
+
+  // GIT WORKSPACE E2E ENDS
+
+
+  tearDown: sauce,
 }
+
+
+const gitmodules = `[submodule "subdemo3"]
+path = subdemo3
+url = https://github.com/bunsenstraat/empty3
+[submodule "testactionsub"]
+path = testactionsub
+url = https://github.com/bunsenstraat/testactions
+`

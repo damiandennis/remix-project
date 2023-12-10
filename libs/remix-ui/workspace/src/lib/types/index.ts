@@ -17,7 +17,7 @@ export interface JSONStandardInput {
   }
 }
 export type MenuItems = action[]
-export type WorkspaceTemplate = 'gist-template' | 'code-template' | 'remixDefault' | 'blank' | 'ozerc20' | 'zeroxErc20' | 'ozerc721' | 'playground' | 'semaphore'
+export type WorkspaceTemplate = 'gist-template' | 'code-template' | 'remixDefault' | 'blank' | 'ozerc20' | 'zeroxErc20' | 'ozerc721' | 'playground' | 'semaphore' | 'hashchecker' | 'rln' | 'breakthroughLabsUniswapv4Hooks' | 'uniswapV4Periphery'
 export interface WorkspaceProps {
   plugin: FilePanelType
 }
@@ -125,6 +125,7 @@ export interface FileExplorerProps {
     toGist: (path?: string, type?: string) => void
     handleNewFileInput: (parentFolder?: string) => Promise<void>
     handleNewFolderInput: (parentFolder?: string) => Promise<void>
+    dragStatus: (status: boolean) => void
 }
 type Placement = import('react-overlays/usePopper').Placement
 export interface FileExplorerMenuProps {
@@ -190,6 +191,7 @@ export interface WorkSpaceState {
     showContextMenu: boolean
     reservedKeywords: string[]
     copyElement: CopyElementType[]
+    dragStatus: boolean
 }
 
 export type FileFocusContextType = {
@@ -290,6 +292,7 @@ export interface ActionPayloadTypes {
   SET_CURRENT_WORKSPACE_BRANCHES: { remote: string | undefined; name: string }[],
   SET_CURRENT_WORKSPACE_CURRENT_BRANCH: string,
   SET_CURRENT_WORKSPACE_IS_GITREPO: boolean,
+  SET_CURRENT_WORKSPACE_HAS_GIT_SUBMODULES: boolean,
   SET_GIT_CONFIG: {
     username: string;
     token: string;
